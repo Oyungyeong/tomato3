@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🍅</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap" rel="stylesheet">
+
+  <style>
+    body, h1, h2, h3, h4, p, ul { margin: 0; padding: 0; }
+    .image-container { width: 100vw; height: 100vh; overflow: hidden; }
+    .image-container img { width: 100%; height: 100%; object-fit: cover; }
+    body { cursor: url('img/hand.png'), auto; }
+    .do-hyeon-regular { font-family: "Do Hyeon", sans-serif; }
+
+    /* 로딩 영상 */
+    #loadingVideo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 10;
+    }
+
+    /* select 버튼 */
+    .wrap {
+      display: none; /* 처음에는 숨김 */
+      flex-direction: column;
+      align-items: center;
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 300px;
+      height: 150px;
+      margin: 20px;
+      border: 5px solid saddlebrown;
+      text-align: center;
+      border-radius: 20px;
+      background-color: white;
+      font-size: 2rem;
+    }
+
+    /* 중앙에 나타날 이미지 스타일 */
+    #capreseImage, #iceImage, #eggImage {
+      display: none; /* 처음에는 숨김 */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: auto;
+      z-index: 5;
+    }
+
+    /* 요리 비디오 */
+    #cookingVideo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 15;
+      display: none; /* 처음에는 숨김 */
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 로딩 비디오 -->
+  <video id="loadingVideo" autoplay muted>
+    <source src="loading.mp4" type="video/mp4">
+  </video>
+
+  <!-- 요리 비디오 -->
+  <video id="cookingVideo" autoplay muted>
+    <source src="cooking.mp4" type="video/mp4">
+  </video>
+
+  <!-- 농장 배경 -->
+  <div class="image-container" id="farm-image">
+    <img src="./img/farm.png">
+  </div>
+
+  <button id="myButton" class="do-hyeon-regular" style="position:absolute; height: 200px; width: 350px; top: 40%; left: 40%; font-size: 2rem; border-radius: 20px; background:white; border: 5px solid saddlebrown; padding: 10px; color: saddlebrown; z-index:2;" onclick="checkAndCreateNewButton()">토마토를 수확해 보자!</button>
+
+  <!-- 토마토 이미지들 -->
+  <div id="tomato1" style="position: absolute;">
+    <img src="./img/tomato.png" class="tomato" style="position: fixed; top: 500px;">
+  </div>
+  <div id="tomato2" style="position: absolute;">
+    <img src="./img/tomato.png" class="tomato" style="position: fixed; top: 400px; left: 360px;">
+  </div>
+  <div id="tomato3" style="position: absolute;">
+    <img src="./img/tomato.png" class="tomato" style="position: fixed; top: 100px; left: 650px;">
+  </div>
+  <div id="tomato4" style="position: absolute;">
+    <img src="./img/tomato.png" class="tomato" style="position: fixed; top: 340px; left: 800px;">
+  </div>
+  <div id="tomato5" style="position: absolute;">
+    <img src="./img/tomato.png" class="tomato" style="position: fixed; top: 500px; left: 900px;">
+  </div>
+  <div id="tomato6" style="position: absolute;">
+    <img src="./img/tomato.png" class="tomato" style="position: fixed; top: 420px; left: 1150px;">
+  </div>
+
+  <div id="new-element"></div>  
+  <div id="select" style="background: #FAF574; position: fixed; z-index: 3; display: none;"></div>
+
+  <!-- 선택 화면 -->
+  <div class="wrap do-hyeon-regular" id="wrap">
+    <div id="what" style="top: 10px; left: center; font-size: 2.5rem;">어떤 요리를 할까?</div>
+    <div id="box1" class="box do-hyeon-regular">토마토 카프레제</div>
+    <div id="box2" class="box do-hyeon-regular">토마토 빙수</div>
+    <div id="box3" class="box do-hyeon-regular">토마토 달걀볶음</div>
+  </div>
+
+  <!-- 중앙에 표시될 음식 이미지 -->
+  <img id="capreseImage" src="./img/Caprese.png" alt="토마토 카프레제">
+  <img id="iceImage" src="./img/ice.png" alt="토마토 빙수">
+  <img id="eggImage" src="./img/egg.png" alt="토마토 달걀볶음">
+
+<script>
+  // 페이지가 로드될 때 실행
+  window.onload = function() {
+    const loadingVideo = document.getElementById('loadingVideo');
+    const cookingVideo = document.getElementById('cookingVideo');
+    const myButton = document.getElementById('myButton');
+    const wrap = document.getElementById('wrap');
+    const imageContainer = document.getElementById('farm-image');
+    const capreseImage = document.getElementById('capreseImage');
+    const iceImage = document.getElementById('iceImage');
+    const eggImage = document.getElementById('eggImage');
+    const backButton = document.getElementById('backButton');
+
+    // 동영상 재생이 끝나면 비디오 숨기기
+    loadingVideo.onended = function() {
+      loadingVideo.style.display = 'none';
+    };
+
+    // 클릭된 토마토와 버튼 카운트
+    let clickedTomatoes = 0;
+    const totalClicks = 7; // myButton 클릭 1회 + 토마토 6개 클릭
+
+    // 모든 토마토 및 버튼 클릭되면 새로운 이미지를 표시하는 함수
+    function checkAndCreateNewButton() {
+      clickedTomatoes++;
+
+      if (clickedTomatoes === totalClicks) {
+        const newImage = document.createElement('img');
+        newImage.src = './img/all.png';
+        newImage.style.width = '800px';
+        newImage.style.height = '530px';
+        newImage.style.position = 'absolute';
+        newImage.style.top = '50%';
+        newImage.style.left = '50%';
+        newImage.style.transform = 'translate(-50%, -50%)';
+        document.body.appendChild(newImage);
+
+        // 새로운 이미지 클릭 시 wrap 화면 표시 및 배경 색 변경
+        newImage.addEventListener('click', () => {
+          newImage.style.display = 'none';
+          imageContainer.style.display = 'none'; // image-container 숨기기
+          wrap.style.display = 'flex'; // wrap 화면 보이기
+          backButton.style.display = 'block'; // 뒤로가기 버튼 보이기
+        });
+      }
+    }
+
+    // myButton 클릭 시 count 증가
+    myButton.addEventListener('click', () => {
+      myButton.style.display = 'none';
+      checkAndCreateNewButton();
+    });
+
+    // 각 토마토 이미지 클릭 시 checkAndCreateNewButton() 호출
+    const tomatoImages = document.querySelectorAll('.tomato');
+    tomatoImages.forEach(tomato => {
+      tomato.addEventListener('click', () => {
+        tomato.style.display = 'none';
+        checkAndCreateNewButton();
+      });
+    });
+
+    // box 클릭 시 요리 비디오 재생
+    function playCookingVideo(callback) {
+      cookingVideo.style.display = 'block'; // 비디오 보이기
+      cookingVideo.play(); // 비디오 재생
+      
+      cookingVideo.onended = function() {
+        cookingVideo.style.display = 'none'; // 비디오 숨기기
+        if (callback) callback(); // 콜백 함수 호출
+      };
+    }
+
+    // box1 클릭 시
+    const box1 = document.getElementById('box1');
+    box1.addEventListener('click', () => {
+      playCookingVideo(() => {
+        document.getElementById('what').style.display = 'none'; // "what" 숨기기
+        box1.style.display = 'none';
+        document.getElementById('box2').style.display = 'none'; // "box2" 숨기기
+        document.getElementById('box3').style.display = 'none'; // "box3" 숨기기
+        document.body.style.backgroundColor = '#4FEB6F'; // 배경 색을 초록색으로 변경
+        capreseImage.style.display = 'block'; // Caprese 이미지 표시
+      });
+    });
+
+    // box2 클릭 시
+    const box2 = document.getElementById('box2');
+    box2.addEventListener('click', () => {
+      playCookingVideo(() => {
+        document.getElementById('what').style.display = 'none'; // "what" 숨기기
+        box1.style.display = 'none';
+        box2.style.display = 'none'; // "box2" 숨기기
+        document.getElementById('box3').style.display = 'none'; // "box3" 숨기기
+        document.body.style.backgroundColor = '#FCF592'; // 배경 색을 노란색으로 변경
+        iceImage.style.display = 'block'; // ice 이미지 표시
+      });
+    });
+
+    // box3 클릭 시
+    const box3 = document.getElementById('box3');
+    box3.addEventListener('click', () => {
+      playCookingVideo(() => {
+        document.getElementById('what').style.display = 'none'; // "what" 숨기기
+        box1.style.display = 'none';
+        box2.style.display = 'none'; // "box2" 숨기기
+        box3.style.display = 'none'; // "box3" 숨기기
+        document.body.style.backgroundColor = '#F55220'; // 배경 색을 빨간색으로 변경
+        eggImage.style.display = 'block'; // egg 이미지 표시
+      });
+    });
+
+    // 뒤로가기 버튼 클릭 시 wrap 화면으로 돌아가기
+    backButton.addEventListener('click', () => {
+      wrap.style.display = 'flex'; // wrap 화면 보이기
+      backButton.style.display = 'none'; // 뒤로가기 버튼 숨기기
+      document.body.style.backgroundColor = ''; // 배경 색 초기화
+      capreseImage.style.display = 'none'; // Caprese 이미지 숨기기
+      iceImage.style.display = 'none'; // ice 이미지 숨기기
+      eggImage.style.display = 'none'; // egg 이미지 숨기기
+      imageContainer.style.display = 'block'; // image-container 보이기
+      clickedTomatoes = 0; // 클릭 카운트 초기화
+    });
+  };
+</script>
+
+</body>
+</html>
+
